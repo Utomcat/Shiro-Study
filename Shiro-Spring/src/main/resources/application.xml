@@ -4,30 +4,41 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         https://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <!--1. 配置 securityManager bean-->
     <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
         <property name="cacheManager" ref="cacheManager" />
         <property name="realm" ref="jdbcRealm" />
     </bean>
+
+    <!--2. 配置 cacheManager-->
     <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
         <property name="cacheManagerConfigFile" value="classpath:shiro/ehCache.xml" />
     </bean>
 
-    <bean id="jdbcRealm" class="com.ranyk.www.config.ShiroRealm">
-    </bean>
+    <!--3. 配置 Realm, 通过实现 Realm 接口的类作为配置类  -->
+    <bean id="jdbcRealm" class="com.ranyk.www.config.ShiroRealm" />
 
+    <!-- 4. 配置 lifecycleBeanPostProcessor, 可以自动调用配置在 Spring IOC 容器中的 shiro bean 的生命周期方法 -->
     <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
 
+    <!-- 5. 启用 IOC 容器中使用 shiro 注解, 但必须是要在配置了 lifecycleBeanPostProcessor 之后才能生效  -->
     <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor" />
-
     <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
         <property name="securityManager" ref="securityManager" />
     </bean>
 
+    <!-- 6. 配置 shiroFilter,其中配置的 shiroFilter ID 需要和 web.xml 中的 shiro 拦截器的 filter-name 一致 -->
     <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
         <property name="securityManager" ref="securityManager" />
         <property name="loginUrl" value="/login.jsp" />
         <property name="successUrl" value="/index.jsp" />
         <property name="unauthorizedUrl" value="unauthorized.jsp" />
+        <!--
+            配置有关页面是否需要认证后才能访问:
+            1）、anon: 不需要认证就能访问
+            2）、authc: 需要认证才能访问
+            3）、/** : 通配符,所有页面或请求
+         -->
         <property name="filterChainDefinitions">
             <value>
                 /login.jsp = anon

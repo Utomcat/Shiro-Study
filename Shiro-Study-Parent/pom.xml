@@ -10,9 +10,177 @@
     <description>Shiro 学习父工程项目</description>
     <packaging>pom</packaging>
 
-
+    <!--子模块配置-->
     <modules>
         <module>../Shiro-Spring</module>
     </modules>
+
+    <!-- 属性配置,定义所有依赖的版本号 -->
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <spring.version>5.3.12</spring.version>
+        <commons.loggong.api.version>1.1</commons.loggong.api.version>
+        <commons.logging.version>1.2</commons.logging.version>
+        <com.springsource.net.sf.cglib.version>2.2.0</com.springsource.net.sf.cglib.version>
+        <com.springsource.org.aopalliance.version>1.0.0</com.springsource.org.aopalliance.version>
+        <com.springsource.org.aspectj.weaver.version>1.6.4.RELEASE</com.springsource.org.aspectj.weaver.version>
+        <shiro.all.version>1.8.0</shiro.all.version>
+        <log4j.core.version>2.14.1</log4j.core.version>
+        <slf4j.api.version>2.0.0-alpha5</slf4j.api.version>
+        <slf4j.log4j12.version>2.0.0-alpha5</slf4j.log4j12.version>
+        <ehcache.version>2.10.9.2</ehcache.version>
+    </properties>
+
+    <!--依赖版本控制-->
+    <dependencyManagement>
+        <dependencies>
+            <!-- spring-aop -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- spring-core -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- spring-web -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- spring-beans -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- spring-expression -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-expression</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- spring-webmvc -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- spring-tx -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- spring-aspects -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aspects</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- spring-context -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- spring-context-support -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- spring-orm -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-orm</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- spring-jdbc -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <!-- commons-logging-api -->
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging-api</artifactId>
+                <version>${commons.loggong.api.version}</version>
+            </dependency>
+            <!-- commons-logging -->
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${commons.logging.version}</version>
+            </dependency>
+            <!-- com.springsource.net.sf.cglib -->
+            <dependency>
+                <groupId>net.sourceforge.cglib</groupId>
+                <artifactId>com.springsource.net.sf.cglib</artifactId>
+                <version>${com.springsource.net.sf.cglib.version}</version>
+            </dependency>
+            <!-- com.springsource.org.aopalliance -->
+            <dependency>
+                <groupId>org.aopalliance</groupId>
+                <artifactId>com.springsource.org.aopalliance</artifactId>
+                <version>${com.springsource.org.aopalliance.version}</version>
+            </dependency>
+            <!-- com.springsource.org.aspectj.weaver -->
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>com.springsource.org.aspectj.weaver</artifactId>
+                <version>${com.springsource.org.aspectj.weaver.version}</version>
+            </dependency>
+            <!-- shiro-all -->
+            <dependency>
+                <groupId>org.apache.shiro</groupId>
+                <artifactId>shiro-all</artifactId>
+                <version>${shiro.all.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.core.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.api.version}</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12 -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.log4j12.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/net.sf.ehcache/ehcache -->
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>${ehcache.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>
