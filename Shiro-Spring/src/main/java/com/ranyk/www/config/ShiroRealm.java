@@ -15,14 +15,17 @@ import org.apache.shiro.realm.Realm;
  */
 public class ShiroRealm implements Realm {
 
+    @Override
     public String getName() {
         return null;
     }
 
+    @Override
     public boolean supports(AuthenticationToken authenticationToken) {
         return false;
     }
 
+    @Override
     public AuthenticationInfo getAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         return null;
     }
