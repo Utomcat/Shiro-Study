@@ -6,5 +6,6 @@
 </head>
 <body>
 <h1>index page</h1>
+<a href="/shiro/logout">Logout</a>
 </body>
 </html>

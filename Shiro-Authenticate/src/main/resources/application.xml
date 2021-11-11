@@ -43,10 +43,19 @@
             <value>
                 /login.jsp = anon
                 /shiro/login = anon
+                /shiro/logout = logout
                 /** = authc
             </value>
         </property>
     </bean>
 
+    <bean id="rememberMeManager" class="org.apache.shiro.web.mgt.CookieRememberMeManager">
+        <property name="cookie" ref="simpleCookie" />
+    </bean>
 
+    <bean id="simpleCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+        <property name="name" value="rememberMe"/>
+        <property name="httpOnly" value="true" />
+        <property name="maxAge" value="86400"/>
+    </bean>
 </beans>
