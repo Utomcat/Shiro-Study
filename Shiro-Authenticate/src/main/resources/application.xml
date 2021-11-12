@@ -1,38 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        https://www.springframework.org/schema/beans/spring-beans.xsd">
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+    <context:property-placeholder location="classpath:db.properties" />
 
     <!--1. 配置 securityManager bean-->
     <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
-        <property name="cacheManager" ref="cacheManager" />
-        <property name="realm" ref="jdbcRealm" />
+        <property name="cacheManager" ref="cacheManager"/>
+        <property name="realm" ref="jdbcRealm"/>
+        <property name="sessionManager" ref="sessionManager"/>
     </bean>
 
     <!--2. 配置 cacheManager-->
     <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
-        <property name="cacheManagerConfigFile" value="classpath:shiro/ehCache.xml" />
+        <property name="cacheManagerConfigFile" value="classpath:shiro/ehCache.xml"/>
     </bean>
 
     <!--3. 配置 Realm, 通过实现 Realm 接口的类作为配置类  -->
-    <bean id="jdbcRealm" class="com.ranyk.www.config.ShiroAuthenticateRealm" />
+    <bean id="jdbcRealm" class="com.ranyk.www.config.ShiroAuthenticateRealm">
+        <property name="credentialsMatcher">
+            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+                <property name="hashAlgorithmName" value="MD5"/>
+                <property name="hashIterations" value="1024"/>
+                <property name="storedCredentialsHexEncoded" value="true"/>
+            </bean>
+        </property>
+    </bean>
 
     <!-- 4. 配置 lifecycleBeanPostProcessor, 可以自动调用配置在 Spring IOC 容器中的 shiro bean 的生命周期方法 -->
-    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
 
     <!-- 5. 启用 IOC 容器中使用 shiro 注解, 但必须是要在配置了 lifecycleBeanPostProcessor 之后才能生效  -->
-    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor" />
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+          depends-on="lifecycleBeanPostProcessor"/>
     <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
-        <property name="securityManager" ref="securityManager" />
+        <property name="securityManager" ref="securityManager"/>
     </bean>
 
     <!-- 6. 配置 shiroFilter,其中配置的 shiroFilter ID 需要和 web.xml 中的 shiro 拦截器的 filter-name 一致 -->
     <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
-        <property name="securityManager" ref="securityManager" />
-        <property name="loginUrl" value="/login.jsp" />
-        <property name="successUrl" value="/index.jsp" />
-        <property name="unauthorizedUrl" value="unauthorized.jsp" />
+        <property name="securityManager" ref="securityManager"/>
+        <property name="loginUrl" value="/login.jsp"/>
+        <property name="successUrl" value="/index.jsp"/>
+        <property name="unauthorizedUrl" value="unauthorized.jsp"/>
         <!--
             配置有关页面是否需要认证后才能访问:
             1）、anon: 不需要认证就能访问
@@ -43,19 +64,78 @@
             <value>
                 /login.jsp = anon
                 /shiro/login = anon
+                /druid/** = anon
                 /shiro/logout = logout
                 /** = authc
             </value>
         </property>
     </bean>
 
-    <bean id="rememberMeManager" class="org.apache.shiro.web.mgt.CookieRememberMeManager">
-        <property name="cookie" ref="simpleCookie" />
+    <!--7. 配置 sessionManager -->
+    <bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+        <property name="sessionIdUrlRewritingEnabled" value="false"/>
     </bean>
 
+    <!--8. 配置 rememberManager -->
+    <bean id="rememberMeManager" class="org.apache.shiro.web.mgt.CookieRememberMeManager">
+        <property name="cookie" ref="simpleCookie" />
+        <property name="cipherKey" value="#{T(org.apache.shiro.codec.Base64).decode('6ZmI6I2j3Y+R1aSn5BOlAA==')}"/>
+    </bean>
+
+    <!-- 9. 配置 simpleCookie -->
     <bean id="simpleCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
         <property name="name" value="rememberMe"/>
         <property name="httpOnly" value="true" />
-        <property name="maxAge" value="86400"/>
+        <property name="maxAge" value="#{60*60*24}"/>
     </bean>
+
+
+    <!-- 数据库连接池配置 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="maxActive" value="20" />
+        <property name="initialSize" value="1" />
+        <property name="maxWait" value="60000" />
+        <property name="minIdle" value="1" />
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />
+        <property name="minEvictableIdleTimeMillis" value="300000" />
+        <property name="testWhileIdle" value="true" />
+        <property name="testOnBorrow" value="false" />
+        <property name="testOnReturn" value="false" />
+        <property name="poolPreparedStatements" value="true" />
+        <property name="maxOpenPreparedStatements" value="20" />
+    </bean>
+
+    <!--3 会话工厂bean sqlSessionFactoryBean -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 数据源 -->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 别名 -->
+        <property name="typeAliasesPackage" value="com.ranyk.www.entity"/>
+        <!-- sql映射文件路径 -->
+        <property name="mapperLocations" value="classpath:mybatis/*Mapper.xml" />
+    </bean>
+
+    <!--4 自动扫描对象关系映射 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--指定会话工厂，如果当前上下文中只定义了一个则该属性可省去 -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!-- 指定要自动扫描接口的基础包，实现接口 -->
+        <property name="basePackage" value="com.ranyk.www.mapper"/>
+    </bean>
+
+    <!--5 声明式事务管理 -->
+    <!--定义事物管理器，由spring管理事务 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--支持注解驱动的事务管理，指定事务管理器 -->
+    <tx:annotation-driven/>
+    <!--6 容器自动扫描IOC组件  -->
+    <context:component-scan base-package="com.ranyk.www"/>
+    <!--7 aspectj支持自动代理实现AOP功能 -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
 </beans>

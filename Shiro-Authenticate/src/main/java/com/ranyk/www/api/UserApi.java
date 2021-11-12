@@ -30,7 +30,7 @@ public class UserApi {
         Subject currentUser = SecurityUtils.getSubject();
         if (!currentUser.isAuthenticated()) {
             UsernamePasswordToken token = new UsernamePasswordToken(userName, passWord);
-            token.setRememberMe(false);
+            token.setRememberMe(true);
             try {
                 currentUser.login(token);
             } catch (AuthenticationException ae) {

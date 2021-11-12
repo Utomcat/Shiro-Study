@@ -12,10 +12,11 @@
 5. 自定义 `Realm` 方法,从数据库中获取有关用户信息,返回给 `Shiro`
     1. 通过继承 `org.apache.shiro.realm.AuthenticatingRealm` 类,实现 `doGetAuthenticationInfo(AuthenticationToken)` 方法
 6. 由 `Shiro` 完成密码的比对
+   1. 密码的比对是交由自定义的 `Realm` 的父类 `AuthenticatingRealm` 的 `credentialsMatcher` 属性调用 `doCredentialsMatch(AuthenticationToken authenticationToken, AuthenticationInfo authenticationInfo)` 方法
 
 ## 程序中的异常
 
-### 1）、项目启动、登录、登出时报 ` Unable to execute 'doFinal' with cipher instance` 异常,但是不影响程序运行,异常详情如下:
+### 1）、项目启动、登录、登出时报 `Unable to execute 'doFinal' with cipher instance` 异常,但是不影响程序运行,异常详情如下:
 
 ```text
 [http-nio-8082-exec-4] WARN org.apache.shiro.mgt.AbstractRememberMeManager - There was a failure while trying to retrieve remembered principals.  This could be due to a configuration problem or corrupted principals.  This could also be due to a recently changed encryption key, if you are using a shiro.ini file, this property would be 'securityManager.rememberMeManager.cipherKey' see: http://shiro.apache.org/web.html#Web-RememberMeServices. The remembered identity will be forgotten and not used for this request.
@@ -69,8 +70,9 @@ Caused by: javax.crypto.AEADBadTagException: Tag mismatch!
 ```
 
 - 产生原因
-  > 由于 `rememberMe` 管理器造成的
+  > 由于 `rememberMe` 管理器造成的浏览器端存放的 `cookie` 数据用新的一次进行解密时解密结果不正确
 - 解决方案
+  > 清除本地浏览器中的 `cookie` 信息
 
 ## 注意事项
 

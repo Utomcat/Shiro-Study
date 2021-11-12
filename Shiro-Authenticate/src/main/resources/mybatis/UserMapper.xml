@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ranyk.www.mapper.UserMapper">
+
+    <select id="selectUserByLogin" parameterType="java.lang.String" resultType="com.ranyk.www.entity.User">
+        select * from t_user where login_name = #{login}
+    </select>
+
+</mapper>
