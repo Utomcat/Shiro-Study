@@ -25,6 +25,7 @@ public class User {
     private String loginName;
     private String name;
     private String password;
+    private String shaPassword;
     private int sex;
     private boolean locked;
     private boolean deleted;

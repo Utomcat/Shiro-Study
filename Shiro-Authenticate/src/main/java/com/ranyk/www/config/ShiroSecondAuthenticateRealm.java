@@ -19,17 +19,17 @@ import javax.annotation.Resource;
  * @date 2021 - 11 - 08
  */
 @SuppressWarnings("all")
-public class ShiroAuthenticateRealm extends AuthenticatingRealm {
+public class ShiroSecondAuthenticateRealm extends AuthenticatingRealm {
 
     @SuppressWarnings("unused")
-    private static final transient Logger log = LoggerFactory.getLogger(ShiroAuthenticateRealm.class);
+    private static final transient Logger log = LoggerFactory.getLogger(ShiroSecondAuthenticateRealm.class);
 
     @Resource
     private UserMapper userMapper;
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        log.info("First Realm doGetAuthenticationInfo");
+        log.info("Second Realm doGetAuthenticationInfo");
 
         //1. 获取 UsernamePasswordToken 对象
         UsernamePasswordToken currentUser = (UsernamePasswordToken) token;
@@ -51,6 +51,6 @@ public class ShiroAuthenticateRealm extends AuthenticatingRealm {
         }
 
         //6. 根据用户情况,构建 AuthenticationInfo 对象返回,常用的对象有
-        return new SimpleAuthenticationInfo(userName,user.getPassword(), ByteSource.Util.bytes(userName),getName());
+        return new SimpleAuthenticationInfo(userName,user.getShaPassword(), ByteSource.Util.bytes(userName),getName());
     }
 }

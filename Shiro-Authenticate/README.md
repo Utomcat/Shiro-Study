@@ -13,6 +13,76 @@
     1. 通过继承 `org.apache.shiro.realm.AuthenticatingRealm` 类,实现 `doGetAuthenticationInfo(AuthenticationToken)` 方法
 6. 由 `Shiro` 完成密码的比对
    1. 密码的比对是交由自定义的 `Realm` 的父类 `AuthenticatingRealm` 的 `credentialsMatcher` 属性调用 `doCredentialsMatch(AuthenticationToken authenticationToken, AuthenticationInfo authenticationInfo)` 方法
+7. 密码的加密
+   1. 配置的 `Realm bean` 增加属性 `credentialsMatcher` 设置,配置如下
+   ```xml
+        <property name="credentialsMatcher">
+            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+                <!-- 设置加密方式 -->
+                <property name="hashAlgorithmName" value="MD5"/>
+                <!-- 设置加密次数 -->
+                <property name="hashIterations" value="1024"/>
+                <!-- 设置是否存储十六进制编码的凭据 -->
+                <property name="storedCredentialsHexEncoded" value="true"/>
+            </bean>
+        </property>
+    ```
+8. 对密码进行 `salt` 加密,在自定义的 `Realm` 类 `doGetAuthenticationInfo(AuthenticationToken token)` 方法返回值发生变化
+   1. 使用 `SimpleAuthenticationInfo(Object principal, Object hashedCredentials, ByteSource credentialsSalt, String realmName)` 返回
+   2. 其中 `ByteSource` 对象使用 `ByteSource.Util.bytes(Object salt)` 方法获取
+   3. `salt` 可以使用任何的内容,一般使用产生的随机数,随机数建议存放在数据库中,本示例中使用用户的登录名作为 `salt`
+9. 多 `Realm` 配置,配置如下:
+    ```xml
+   <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+   <!--1. 配置 securityManager bean-->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="cacheManager" ref="cacheManager"/>
+        <!-- 单 realm 使用如下配置 -->
+        <!--<property name="realm" ref="jdbcRealm"/>-->
+        <!-- 多个 realm 使用如下配置 -->
+        <property name="authenticator" ref="authenticator"/>
+    </bean>
+   <bean id="authenticator" class="org.apache.shiro.authc.pam.ModularRealmAuthenticator">
+        <property name="realms">
+            <list>
+                <ref bean="jdbcRealm"/>
+                <ref bean="secondRealm"/>
+            </list>
+        </property>
+    </bean>
+   <!--3. 配置 Realm, 通过实现 Realm 接口的类作为配置类  -->
+    <bean id="jdbcRealm" class="com.ranyk.www.config.ShiroAuthenticateRealm">
+        <property name="credentialsMatcher">
+            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+                <property name="hashAlgorithmName" value="MD5"/>
+                <property name="hashIterations" value="1024"/>
+                <property name="storedCredentialsHexEncoded" value="true"/>
+            </bean>
+        </property>
+    </bean>
+    <bean id="secondRealm" class="com.ranyk.www.config.ShiroSecondAuthenticateRealm">
+        <property name="credentialsMatcher">
+            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+                <property name="hashAlgorithmName" value="SHA-256"/>
+                <property name="hashIterations" value="1024"/>
+                <property name="storedCredentialsHexEncoded" value="true"/>
+            </bean>
+        </property>
+    </bean>
+   </beans>
+   ```
 
 ## 程序中的异常
 

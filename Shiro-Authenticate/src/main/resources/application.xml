@@ -18,8 +18,21 @@
     <!--1. 配置 securityManager bean-->
     <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
         <property name="cacheManager" ref="cacheManager"/>
-        <property name="realm" ref="jdbcRealm"/>
-        <property name="sessionManager" ref="sessionManager"/>
+        <!-- 单 realm 使用如下配置 -->
+        <!--<property name="realm" ref="jdbcRealm"/>-->
+        <!-- 多个 realm 使用如下配置 -->
+        <property name="authenticator" ref="authenticator"/>
+        <!-- 配置 sessionManager -->
+        <!--<property name="sessionManager" ref="sessionManager"/>-->
+    </bean>
+
+    <bean id="authenticator" class="org.apache.shiro.authc.pam.ModularRealmAuthenticator">
+        <property name="realms">
+            <list>
+                <ref bean="jdbcRealm"/>
+                <ref bean="secondRealm"/>
+            </list>
+        </property>
     </bean>
 
     <!--2. 配置 cacheManager-->
@@ -32,6 +45,16 @@
         <property name="credentialsMatcher">
             <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
                 <property name="hashAlgorithmName" value="MD5"/>
+                <property name="hashIterations" value="1024"/>
+                <property name="storedCredentialsHexEncoded" value="true"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="secondRealm" class="com.ranyk.www.config.ShiroSecondAuthenticateRealm">
+        <property name="credentialsMatcher">
+            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+                <property name="hashAlgorithmName" value="SHA-256"/>
                 <property name="hashIterations" value="1024"/>
                 <property name="storedCredentialsHexEncoded" value="true"/>
             </bean>
@@ -72,22 +95,22 @@
     </bean>
 
     <!--7. 配置 sessionManager -->
-    <bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+    <!--<bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
         <property name="sessionIdUrlRewritingEnabled" value="false"/>
-    </bean>
+    </bean>-->
 
     <!--8. 配置 rememberManager -->
-    <bean id="rememberMeManager" class="org.apache.shiro.web.mgt.CookieRememberMeManager">
+    <!--<bean id="rememberMeManager" class="org.apache.shiro.web.mgt.CookieRememberMeManager">
         <property name="cookie" ref="simpleCookie" />
         <property name="cipherKey" value="#{T(org.apache.shiro.codec.Base64).decode('6ZmI6I2j3Y+R1aSn5BOlAA==')}"/>
-    </bean>
+    </bean>-->
 
     <!-- 9. 配置 simpleCookie -->
-    <bean id="simpleCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+    <!--<bean id="simpleCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
         <property name="name" value="rememberMe"/>
         <property name="httpOnly" value="true" />
         <property name="maxAge" value="#{60*60*24}"/>
-    </bean>
+    </bean>-->
 
 
     <!-- 数据库连接池配置 -->

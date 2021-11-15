@@ -3,7 +3,22 @@
 <mapper namespace="com.ranyk.www.mapper.UserMapper">
 
     <select id="selectUserByLogin" parameterType="java.lang.String" resultType="com.ranyk.www.entity.User">
-        select * from t_user where login_name = #{login}
+        select id,
+               login_name    loginName,
+               user_name     name,
+               user_password password,
+               sha_password  shaPassword,
+               sex,
+               locked,
+               deleted,
+               create_time   createTime,
+               update_time   updateTime,
+               deleted_time  deletedTime,
+               create_id     createId,
+               update_id     updateId,
+               deleted_id    deletedId
+        from t_user
+        where login_name = #{login}
     </select>
 
 </mapper>
